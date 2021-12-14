@@ -18,18 +18,24 @@ else:
 input = up.open(args.inputfile)[treeName]
 #input.show()
 
+################### Add your cut here
+######### define your cut
+#cut = input.array('wS1CDF_max')>1
+######### If no cut needed
+cut = [True] * numentries
+
 ##### newly defined varialbes....
 ##### they are not directly defined in the input file
-wcdf = input.array('wS1CDF_max')
-qElse = input.array('qElseBeforeS1max')
-qNear = input.array('qS1_max')/input.array('qNearS1max')
-TBA = (input.array('qS2T_max')-input.array('qS2B_max'))/input.array('qS2_max')
-PMT_q = input.array('qS2maxChannelCharge_max')/input.array('qS2_max')
-hit_rms = input.array('qS2hitStdev_max')
-top_rms = input.array('rmsMaxQPMTPosS2T_max')
-wcdf_S2 = 4*0.001*input.array('wS2CDF_max')
-w2575 = 4*0.001*(input.array('wS2CDF75_max') - input.array('wS2CDF25_max'))
-w50 = 4*0.001*input.array('wS2CDF50_max')
+wcdf = input.array('wS1CDF_max')[cut]
+qElse = input.array('qElseBeforeS1max')[cut]
+qNear = input.array('qS1_max')/input.array('qNearS1max')[cut]
+TBA = (input.array('qS2T_max')-input.array('qS2B_max'))/input.array('qS2_max')[cut]
+PMT_q = input.array('qS2maxChannelCharge_max')/input.array('qS2_max')[cut]
+hit_rms = input.array('qS2hitStdev_max')[cut]
+top_rms = input.array('rmsMaxQPMTPosS2T_max')[cut]
+wcdf_S2 = 4*0.001*input.array('wS2CDF_max')[cut]
+w2575 = 4*0.001*(input.array('wS2CDF75_max') - input.array('wS2CDF25_max'))[cut]
+w50 = 4*0.001*input.array('wS2CDF50_max')[cut]
 
 output = up.recreate(args.outputfile)
 output["miniTree"] = up.newtree({"wcdf": float, "qElse": float, "qNear" : float, "TBA" : float, "PMT_q" :  float, "hit_rms" :  float, "top_rms" : float, "wcdf_S2" : float, "w2575" : float, "w50" : float})
