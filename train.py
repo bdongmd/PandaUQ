@@ -20,12 +20,12 @@ args = parser.parse_args()
 #####
 # Parameter setting here
 InputShape = 10
-h_layers = [20, 10, 3]
-drops = [0.2, 0.2, 0.2]
+h_layers = [40, 25, 8]
+drops = [0.3, 0.3, 0.3]
 dropout=True
 lr = 0.0001
-batch_size = 128
-epochs = 4
+batch_size = 524 
+epochs = 40
 
 doPlotting = True
 
