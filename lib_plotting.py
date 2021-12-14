@@ -5,6 +5,8 @@ import pandas as pd
 import sys
 
 def plotAccLoss(trainInput, testInput, putVar, output_dir='plots'):
+	'''comparison between train and testing loss and accuracy'''
+
 	epochs = np.arange(1, len(trainInput) + 1)
 
 	fig = plt.figure()
@@ -29,6 +31,7 @@ def plotAccLoss(trainInput, testInput, putVar, output_dir='plots'):
 	plt.savefig('{}/_compare.pdf'.format(output_dir, putVar))
 
 def variable_plotting(signal, bkg, outputFile="output/inputVar.pdf"):
+	'''used to plot input distributions between signal and background'''
 
 	nbins = 50
 	with open("input_var.json") as vardict:
@@ -37,7 +40,7 @@ def variable_plotting(signal, bkg, outputFile="output/inputVar.pdf"):
 
 	varcounter = -1
 
-	fig, ax = plt.subplots(3,4, figsize=(25,35))
+	fig, ax = plt.subplots(3,4, figsize=(16, 12))
 	for i, axobjlist in enumerate(ax):
 		for j, axobj in enumerate(axobjlist):
 			varcounter += 1
@@ -60,7 +63,7 @@ def variable_plotting(signal, bkg, outputFile="output/inputVar.pdf"):
 				axobj.hist(s, binning, histtype=u'step', color='g', label='signal', density=1)
 
 				axobj.legend()
-				axobj.set_yscale('log',nonposty='clip')
+				axobj.set_yscale('log')
 				axobj.set_title(variablelist[varcounter])
 
 			else:
