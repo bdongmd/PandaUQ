@@ -1,5 +1,7 @@
 # ignore data 
 input/
+output/
+plots/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
