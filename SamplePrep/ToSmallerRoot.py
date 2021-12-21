@@ -82,12 +82,8 @@ if args.isSignal=='S2Only':
 	w50 = np.array(w50)[cut]
 	output["miniTree"] = up.newtree({"TBA" : float, "PMT_q" :  float, "hit_rms" :  float, "wcdf_S2" : float, "w2575" : float, "w50" : float})
 	output["miniTree"].extend({
-		"wcdf" : wcdf,
-		"qElse" : qElse,
-		"qNear" : qNear,
 		"TBA" : TBA,
 		"PMT_q" : PMT_q,
-		"top_rms" : top_rms,
 		"hit_rms" : hit_rms,
 		"wcdf_S2" : wcdf_S2,
 		"w2575" : w2575,
@@ -105,14 +101,18 @@ else:
 	qElse = input.array('qElseBeforeS1max')[cut]
 	qNear = input.array('qS1_max')[cut]/input.array('qNearS1max')[cut]
 	output["miniTree"] = up.newtree({"wcdf": float, "qElse": float, "qNear" : float, "TBA" : float, "PMT_q" :  float, "hit_rms" :  float, "top_rms" : float, "wcdf_S2" : float, "w2575" : float, "w50" : float})
-
 	output["miniTree"].extend({
+		"wcdf" : wcdf,
+		"qElse" : qElse,
+		"qNear" : qNear,
 		"TBA" : TBA,
 		"PMT_q" : PMT_q,
+		"top_rms" : top_rms,
 		"hit_rms" : hit_rms,
 		"wcdf_S2" : wcdf_S2,
 		"w2575" : w2575,
 		"w50" : w50
-	})	
+	})
+	
 
 output.close()
