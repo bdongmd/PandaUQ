@@ -48,19 +48,8 @@ cut = np.logical_and.reduce(tmpcut, dtype=bool)
 ##### newly defined varialbes....
 ##### they are not directly defined in the input file
 output = up.recreate(args.outputfile)
-if args.isSignal=='S1':
-	TBA = (input.array('qS2T_max')[cut]-input.array('qS2B_max')[cut])/input.array('qS2_max')[cut]
-	PMT_q = input.array('qS2maxChannelCharge_max')[cut]/input.array('qS2_max')[cut]
-	hit_rms = input.array('qS2hitStdev_max')[cut]
-	top_rms = input.array('rmsMaxQPMTPosS2T_max')[cut]
-	wcdf_S2 = 4*0.001*input.array('wS2CDF_max')[cut]
-	w2575 = 4*0.001*(input.array('wS2CDF75_max')[cut] - input.array('wS2CDF25_max')[cut])
-	w50 = 4*0.001*input.array('wS2CDF50_max')[cut]
-	wcdf = input.array('wS1CDF_max')[cut]
-	qElse = input.array('qElseBeforeS1max')[cut]
-	qNear = input.array('qS1_max')[cut]/input.array('qNearS1max')[cut]
-	output["miniTree"] = up.newtree({"wcdf": float, "qElse": float, "qNear" : float, "TBA" : float, "PMT_q" :  float, "hit_rms" :  float, "top_rms" : float, "wcdf_S2" : float, "w2575" : float, "w50" : float})
-else:
+
+if args.isSignal=='S2Only':
 	qS2maxChannelCharge = input.array('qS2maxChannelCharge')
 	qS2hitStdev = input.array('qS2hitStdev')
 	#rmsMaxQPMTPosS2T = input.array('rmsMaxQPMTPosS2T')
@@ -92,6 +81,18 @@ else:
 	w2575 = np.array(w2575)[cut]
 	w50 = np.array(w50)[cut]
 	output["miniTree"] = up.newtree({"TBA" : float, "PMT_q" :  float, "hit_rms" :  float, "wcdf_S2" : float, "w2575" : float, "w50" : float})
+else:
+	TBA = (input.array('qS2T_max')[cut]-input.array('qS2B_max')[cut])/input.array('qS2_max')[cut]
+	PMT_q = input.array('qS2maxChannelCharge_max')[cut]/input.array('qS2_max')[cut]
+	hit_rms = input.array('qS2hitStdev_max')[cut]
+	top_rms = input.array('rmsMaxQPMTPosS2T_max')[cut]
+	wcdf_S2 = 4*0.001*input.array('wS2CDF_max')[cut]
+	w2575 = 4*0.001*(input.array('wS2CDF75_max')[cut] - input.array('wS2CDF25_max')[cut])
+	w50 = 4*0.001*input.array('wS2CDF50_max')[cut]
+	wcdf = input.array('wS1CDF_max')[cut]
+	qElse = input.array('qElseBeforeS1max')[cut]
+	qNear = input.array('qS1_max')[cut]/input.array('qNearS1max')[cut]
+	output["miniTree"] = up.newtree({"wcdf": float, "qElse": float, "qNear" : float, "TBA" : float, "PMT_q" :  float, "hit_rms" :  float, "top_rms" : float, "wcdf_S2" : float, "w2575" : float, "w50" : float})
 
 if args.isSignal=='S1':
 	output["miniTree"].extend({
