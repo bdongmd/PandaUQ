@@ -93,21 +93,27 @@ else:
 	w50 = np.array(w50)[cut]
 	output["miniTree"] = up.newtree({"TBA" : float, "PMT_q" :  float, "hit_rms" :  float, "wcdf_S2" : float, "w2575" : float, "w50" : float})
 
-output["miniTree"].extend({
-	"TBA" : TBA,
-	"PMT_q" : PMT_q,
-	"hit_rms" : hit_rms,
-	"wcdf_S2" : wcdf_S2,
-	"w2575" : w2575,
-	"w50" : w50
-})
-
 if args.isSignal=='S1':
 	output["miniTree"].extend({
-		"top_rms" : top_rms,
 		"wcdf" : wcdf,
 		"qElse" : qElse,
-		"qNear" : qNear
+		"qNear" : qNear,
+		"TBA" : TBA,
+		"PMT_q" : PMT_q,
+		"top_rms" : top_rms,
+		"hit_rms" : hit_rms,
+		"wcdf_S2" : wcdf_S2,
+		"w2575" : w2575,
+		"w50" : w50
 	})
+else:
+	output["miniTree"].extend({
+		"TBA" : TBA,
+		"PMT_q" : PMT_q,
+		"hit_rms" : hit_rms,
+		"wcdf_S2" : wcdf_S2,
+		"w2575" : w2575,
+		"w50" : w50
+	})	
 
 output.close()
