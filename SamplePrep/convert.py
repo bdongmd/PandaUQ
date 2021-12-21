@@ -3,6 +3,7 @@ import uproot3 as up
 import numpy as np
 import h5py
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 #from var_mapping import mapping
 import sys
@@ -30,11 +31,18 @@ df_B = bkg.pandas.df()
 
 ######## plotting input variables #########
 ## note: no scaling is applied here
-lib_plotting.variable_plotting(df_S, df_B, variables=args.config, outputFile='plots/inputVar.pdf')
+lib_plotting.variable_plotting(df_S, df_B, noname=False, variables=args.config, outputFile='plots/inputVar_noscale.pdf')
+
 
 X_train = np.concatenate((pd.DataFrame(df_B), pd.DataFrame(df_S)))
 labels = np.concatenate((np.zeros(len(df_B), dtype=int), np.ones(len(df_S), dtype=int)))
 print("X_train shape: {}".format(X_train.shape))
+
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train = scaler.transform(X_train)
+# inverse = scaler.inverse_transform(standardized)
+lib_plotting.variable_plotting(pd.DataFrame(scaler.transform(df_S)), pd.DataFrame(scaler.transform(df_B)), noname=True, variables=args.config, outputFile='plots/inputVar_scaled.pdf')
 
 rng_state = np.random.get_state()
 np.random.shuffle(X_train)
