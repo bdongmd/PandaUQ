@@ -110,11 +110,11 @@ def plotAccLoss(trainInput, testInput, putVar, output_dir='plots'):
 	plt.xlabel('epoch')
 	plt.savefig('{}/{}_compare.pdf'.format(output_dir, putVar))
 
-def variable_plotting(signal, bkg, outputFile="output/inputVar.pdf"):
+def variable_plotting(signal, bkg, variables="S2Only_input_var.json", outputFile="output/inputVar.pdf"):
 	'''used to plot input distributions between signal and background'''
 
 	nbins = 50
-	with open("input_var.json") as vardict:
+	with open('{}'.format(variables)) as vardict:
 		variablelist = json.load(vardict)[:]
 
 
