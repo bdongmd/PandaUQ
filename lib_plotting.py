@@ -123,7 +123,7 @@ def plotAccLoss(trainInput, testInput, putVar, output_dir='plots'):
 	plt.xlabel('epoch')
 	plt.savefig('{}/{}_compare.pdf'.format(output_dir, putVar))
 
-def variable_plotting(signal, bkg, noname=False, variables="S2Only_input_var.json", outputFile="output/inputVar.pdf"):
+def variable_plotting(signal, bkg, sig2=None, noname=False, variables="S2Only_input_var.json", outputFile="output/inputVar.pdf"):
 	'''used to plot input distributions between signal and background'''
 
 	nbins = 50
@@ -142,22 +142,30 @@ def variable_plotting(signal, bkg, noname=False, variables="S2Only_input_var.jso
 				if noname:
 					b = bkg[varcounter]
 					s = signal[varcounter]
+					if sig2 is not None:
+						s2 = sig2[varcounter]
 				else:
 					var = variablelist[varcounter]
 					b = bkg[var]
 					s = signal[var]
+					if sig2 is not None:
+						s2 = sig2[var]
 				b.replace([np.inf, -np.inf], np.nan, inplace=True)
-				s.replace([np.inf, -np.inf], np.nan, inplace=True)
-
 				b = b.dropna()
+				s.replace([np.inf, -np.inf], np.nan, inplace=True)
 				s = s.dropna()
+				if sig2 is not None:
+					s2.replace([np.inf, -np.inf], np.nan, inplace=True)
+					s2 = s2.dropna()
 
 				minval = min([np.amin(s), np.amin(b)])
 				maxval = max([np.amax(s), np.amax(b)])*1.4
 				binning = np.linspace(minval, maxval, nbins)
 
 				axobj.hist(b, binning, histtype=u'step', color='orange', label='background', density=1)
-				axobj.hist(s, binning, histtype=u'step', color='g', label='signal', density=1)
+				axobj.hist(s, binning, histtype=u'step', color='green', label='signal', density=1)
+				if sig2 is not None:
+					axobj.hist(s2, binning, histtype=u'step', color='blue',label='new sig', density=1)
 
 				axobj.legend()
 				axobj.set_yscale('log')

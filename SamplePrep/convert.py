@@ -21,6 +21,7 @@ parser.add_argument('-s', '--sigfile', type=str,
 	default='/Users/binbindong/Desktop/work/PandaX/PandaUQ/input/simu_2hit_bdt.root')
 parser.add_argument('-b', '--bkgfile', type=str,
 	default='/Users/binbindong/Desktop/work/PandaX/PandaUQ/input/total_pair_test_2hit.root')
+parser.add_argument('--s2', type=str)
 parser.add_argument('--saveScale', action='store_true')
 parser.add_argument('-c', '--config', type=str)
 parser.add_argument('-o', '--outputfile', type=str)
@@ -33,6 +34,10 @@ bkg = up.open(args.bkgfile)['miniTree']
 
 df_S = signal.pandas.df()
 df_B = bkg.pandas.df()
+if args.s2:
+	sig2 = up.open(args.s2)['miniTree']
+	df_S2 = sig2.pandas.df()
+	lib_plotting.variable_plotting(df_S, df_B, sig2=df_S2, noname=False, variables=args.config, outputFile='plots/inputCompare.pdf')
 
 ######## plotting input variables #########
 ## note: no scaling is applied here
@@ -62,7 +67,7 @@ np.random.shuffle(labels)
 np.random.set_state(rng_state)
 np.random.shuffle(weight)
 #assert X_train.shape[1] == 10 ## number of input variables 
-print(X_train.shape[1])
+print('Training input shape: {}'.format(X_train.shape))
 
 outputfile = h5py.File(args.outputfile, 'w')
 outputfile.create_dataset('X_train', data=X_train, compression='gzip')
