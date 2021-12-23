@@ -26,6 +26,6 @@ python3 ToSmallerRoot.py -i ../input/sig_total.root -s S2Only -o ../input/bdong_
 ```
 python3 convert.py -s ../input/bdong_sig.root -b ../input/bdong_bkg.root -o ../input/bdong_total_shuffled.h5 -c S2Only_input_var.json
 ```
-
+In order to save scaling info for training variables, use flag ```--saveScale```. Otherwise, the file containing scaling info will be loaded.
 
 
