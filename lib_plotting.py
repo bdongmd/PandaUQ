@@ -171,7 +171,7 @@ def variable_plotting(signal, bkg, noname=False, variables="S2Only_input_var.jso
 	plt.savefig(outputFile, transparent=True)
 
 
-def compare2Sig(sig1_score, sig2_score, outputfile):
+def compare2Sig(sig1_score, sig2_score, outputDir):
 	'''Compare the efficiency and other performance between two signals.
 	sig1_score: sigmoid output score for signal 1
 	sig2_score: sigmoid output score for signal 2
@@ -184,7 +184,7 @@ def compare2Sig(sig1_score, sig2_score, outputfile):
 
 	for i in tqdm(range(len(scanvalue)), desc="========== Caluting ROC curve..."):
 		sigeff_1.append(len(sig1_score[sig1_score>scanvalue[i]])/len(sig1_score))
-		sigeff_2.append(len(sig2_score[sig2_score>scanvalue[i]]/len(sig2_score)))
+		sigeff_2.append(len(sig2_score[sig2_score>scanvalue[i]])/len(sig2_score))
 		cut.append(scanvalue[i])
 	
 	fig = plt.figure()
@@ -193,4 +193,13 @@ def compare2Sig(sig1_score, sig2_score, outputfile):
 	plt.plot(cut, sigeff_2, 'o')
 	plt.legend(['trained signal', 'new signals'], loc='upper right')
 	plt.ylabel('efficiency')
-	plt.savefig(outputfile)	
+	plt.savefig('{}/eff.pdf'.format(outputDir))	
+
+	fig = plt.figure()
+	ax = fig.add_axes([0.15, 0.1, 0.8, 0.8])
+	nbins=200
+	plt.hist(sig1_score, bins=nbins, range=[0,1], density=True, label='trained signal', histtype='step')
+	plt.hist(sig2_score, bins=nbins, range=[0,1], density=True, label='new signal', histtype='step')
+	plt.legend(['trained signal', 'new signals'], loc='upper right')
+	plt.ylabel('efficiency')
+	plt.savefig('{}/score.pdf'.format(outputDir))

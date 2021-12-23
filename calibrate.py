@@ -25,8 +25,8 @@ compareTwoSig = True and args.s2 # if comapre performance between two signals
 
 #### model parameters
 InputShape = 10
-#h_layers = [20, 15, 8]
-h_layers = [40, 25, 8]
+h_layers = [20, 15, 8]
+#h_layers = [40, 25, 8]
 drops = [0.2, 0.2, 0.2]
 dropout=True
 lr = 0.0005
@@ -55,7 +55,7 @@ else:
 nodrop = test_model.predict(X_test) # evaluaiton without Dropout
 if compareTwoSig:
 	s2_nodrop = test_model.predict(sig2_test)
-	lib_plotting.compare2Sig(nodrop, s2_nodrop, 'output/compare.pdf')
+	lib_plotting.compare2Sig(nodrop, s2_nodrop, 'output/')
 
 if performanceCheck:
 	lib_plotting.plotOutputScore(nodrop.flatten(), labels)
