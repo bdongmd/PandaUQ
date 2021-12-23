@@ -18,17 +18,27 @@ def plotOutputScore(score, labels, output_dir='output'):
 	signal_score = score[labels==1]
 	significance = []
 	N_signal = []
+	N_bkg = []
+	sWeight = 1.95/(73010*0.7)
+	bWeight = 456.9/(946892*0.7)
+	#sWeight = 1.95/21903
+	#bWeight = 456.9/284068
 
 	for i in tqdm(range(len(scanvalue)), desc="========== Caluting ROC curve..."):
 		signal_tagged = signal[signal_score>scanvalue[i]]
 		all_tagged = labels[score>scanvalue[i]]
 		if len(all_tagged)==0:
 			break
+		tmp_sig = len(signal_tagged)*sWeight/np.sqrt((len(all_tagged)-len(signal_tagged))*bWeight+len(signal_tagged)*sWeight)
+		if tmp_sig>1:
+			#print('for cut = {}'.format(scanvalue[i]))
+			print("sig : Nsig : Nbkg = {} : {} : {}".format(tmp_sig, len(signal_tagged)*sWeight, (len(all_tagged)-len(signal_tagged))*bWeight))
 		cut.append(scanvalue[i])
-		N_signal.append(len(signal_tagged))
-		significance.append(len(signal_tagged)/np.sqrt(len(all_tagged)))
+		N_signal.append(len(signal_tagged)*sWeight)
+		N_bkg.append((len(all_tagged) - len(signal_tagged))*bWeight)
+		significance.append(tmp_sig)
 		sig_eff.append(len(signal_tagged)/len(signal))
-		purity.append(len(signal_tagged)/len(all_tagged))
+		purity.append(len(signal_tagged)*sWeight/((len(all_tagged)-len(signal_tagged))*bWeight+len(signal_tagged)*sWeight))
 	
 	print("========== Plotting testing performance...")
 	pdf = matplotlib.backends.backend_pdf.PdfPages("{}/testing_perm.pdf".format(output_dir))
@@ -39,7 +49,7 @@ def plotOutputScore(score, labels, output_dir='output'):
 	ax.hist(outputScore[labels==0], bins=nbins, range=[0,1], density=True, label = 'background', histtype='step')
 	ax.set_ylabel('density')
 	ax.set_xlabel('sigmoid output')
-	#ax.set_yscale('log')
+	ax.set_yscale('log')
 	ax.legend()
 	pdf.savefig()
 	fig.clear()
@@ -55,9 +65,12 @@ def plotOutputScore(score, labels, output_dir='output'):
 
 	ax2 = ax.twinx()
 	color = 'tab:green'
-	ax2.set_ylabel('N. of tagged signal events', color=color)
-	ax2.plot(cut, N_signal, color = color)
-	ax2.tick_params(axis='y', labelcolor = color)
+	ax2.set_ylabel('N. of tagged events', color=color)
+	ax2.set_ylim(0,1.5)
+	ax2.plot(cut, N_signal, color = color, label='signal')
+	ax2.plot(cut, N_bkg, color='blue', label='background')
+	ax2.tick_params(axis='y', labelcolor = 'black')
+	ax2.legend()
 
 	pdf.savefig()
 	fig.clear()
@@ -156,3 +169,28 @@ def variable_plotting(signal, bkg, noname=False, variables="S2Only_input_var.jso
 
 	plt.tight_layout()
 	plt.savefig(outputFile, transparent=True)
+
+
+def compare2Sig(sig1_score, sig2_score, outputfile):
+	'''Compare the efficiency and other performance between two signals.
+	sig1_score: sigmoid output score for signal 1
+	sig2_score: sigmoid output score for signal 2
+	outputfile: name of output file'''
+
+	scanvalue = np.linspace(0., 1.0, num=100)
+	sigeff_1 = []
+	sigeff_2 = []
+	cut = []
+
+	for i in tqdm(range(len(scanvalue)), desc="========== Caluting ROC curve..."):
+		sigeff_1.append(len(sig1_score[sig1_score>scanvalue[i]])/len(sig1_score))
+		sigeff_2.append(len(sig2_score[sig2_score>scanvalue[i]]/len(sig2_score)))
+		cut.append(scanvalue[i])
+	
+	fig = plt.figure()
+	ax = fig.add_axes([0.15, 0.1, 0.8, 0.8])
+	plt.plot(cut, sigeff_1, 'o')
+	plt.plot(cut, sigeff_2, 'o')
+	plt.legend(['trained signal', 'new signals'], loc='upper right')
+	plt.ylabel('efficiency')
+	plt.savefig(outputfile)	
