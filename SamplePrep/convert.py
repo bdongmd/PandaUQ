@@ -33,9 +33,11 @@ df_B = bkg.pandas.df()
 ## note: no scaling is applied here
 lib_plotting.variable_plotting(df_S, df_B, noname=False, variables=args.config, outputFile='plots/inputVar_noscale.pdf')
 
-
+sWeight = 1. # for imbalanced sample, signal and background can be adjusted to improve performance
+bWeight = 1.
 X_train = np.concatenate((pd.DataFrame(df_B), pd.DataFrame(df_S)))
 labels = np.concatenate((np.zeros(len(df_B), dtype=int), np.ones(len(df_S), dtype=int)))
+weight = np.concatenate((np.ones(len(df_S))*bWeight, np.ones(len(df_S))*sWeight))
 print("X_train shape: {}".format(X_train.shape))
 
 scaler = StandardScaler()
@@ -48,10 +50,13 @@ rng_state = np.random.get_state()
 np.random.shuffle(X_train)
 np.random.set_state(rng_state)
 np.random.shuffle(labels)
+np.random.set_state(rng_state)
+np.random.shuffle(weight)
 #assert X_train.shape[1] == 10 ## number of input variables 
 print(X_train.shape[1])
 
 outputfile = h5py.File(args.outputfile, 'w')
 outputfile.create_dataset('X_train', data=X_train, compression='gzip')
 outputfile.create_dataset('labels',  data=labels,  compression='gzip')
+outputfile.create_dataset('weight',  data=weight,  compression='gzip')
 outputfile.close()

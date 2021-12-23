@@ -36,8 +36,10 @@ totalEvents = len(trainfile['X_train'])
 halfEvents = int(0.5 * totalEvents)
 X_train = trainfile['X_train'][:halfEvents]
 Y_train = trainfile['labels'][:halfEvents]
+train_weight = trainfile['weight'][:halfEvents]
 X_test = trainfile['X_train'][halfEvents:]
 Y_test = trainfile['labels'][halfEvents:]
+test_weight = trainfile['weight'][halfEvents:]
 
 ##### Training model parameter setting and loading
 TrainModel = model.DLModel(InputShape=InputShape, h_layers=h_layers, lr=lr, drops=drops, dropout=dropout)
@@ -46,9 +48,10 @@ TrainModel.summary()
 ##### Hello!! Adding useful early stop...
 callbacks = EarlyStopping(monitor='val_loss', patience=5)
 history = TrainModel.fit(X_train, Y_train,
+			sample_weight=train_weight,
 			batch_size = batch_size,
 			epochs = epochs,
-			validation_data = (X_test, Y_test),
+			validation_data = (X_test, Y_test, test_weight),
 			callbacks = callbacks,
 			verbose = 1)
 TrainModel.save('{}/training_e{}.h5'.format(args.outputDir,epochs))
