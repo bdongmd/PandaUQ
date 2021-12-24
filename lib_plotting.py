@@ -19,10 +19,11 @@ def plotOutputScore(score, labels, output_dir='output'):
 	significance = []
 	N_signal = []
 	N_bkg = []
-	sWeight = 1.95/(73010*0.7)
-	bWeight = 456.9/(946892*0.7)
-	#sWeight = 1.95/21903
-	#bWeight = 456.9/284068
+	#sWeight = 1.95/(73010*0.7)
+	#bWeight = 456.9/(946892*0.7)
+	#### For 1 hit:
+	sWeight = 2.7889/(52004)
+	bWeight = 3554.7073/(552226-52004)
 
 	for i in tqdm(range(len(scanvalue)), desc="========== Caluting ROC curve..."):
 		signal_tagged = signal[signal_score>scanvalue[i]]
@@ -66,7 +67,7 @@ def plotOutputScore(score, labels, output_dir='output'):
 	ax2 = ax.twinx()
 	color = 'tab:green'
 	ax2.set_ylabel('N. of tagged events', color=color)
-	ax2.set_ylim(0,1.5)
+	ax2.set_ylim(0,5)
 	ax2.plot(cut, N_signal, color = color, label='signal')
 	ax2.plot(cut, N_bkg, color='blue', label='background')
 	ax2.tick_params(axis='y', labelcolor = 'black')
@@ -159,7 +160,7 @@ def variable_plotting(signal, bkg, sig2=None, noname=False, variables="S2Only_in
 					s2 = s2.dropna()
 
 				minval = min([np.amin(s), np.amin(b)])
-				maxval = max([np.amax(s), np.amax(b)])*1.4
+				maxval = min([np.amax(s), np.amax(b)])*1.4
 				binning = np.linspace(minval, maxval, nbins)
 
 				axobj.hist(b, binning, histtype=u'step', color='orange', label='background', density=1)
@@ -201,6 +202,7 @@ def compare2Sig(sig1_score, sig2_score, outputDir):
 	plt.plot(cut, sigeff_2, 'o')
 	plt.legend(['trained signal', 'new signals'], loc='upper right')
 	plt.ylabel('efficiency')
+	plt.xlabel('output score')
 	plt.savefig('{}/eff.pdf'.format(outputDir))	
 
 	fig = plt.figure()
@@ -209,5 +211,6 @@ def compare2Sig(sig1_score, sig2_score, outputDir):
 	plt.hist(sig1_score, bins=nbins, range=[0,1], density=True, label='trained signal', histtype='step')
 	plt.hist(sig2_score, bins=nbins, range=[0,1], density=True, label='new signal', histtype='step')
 	plt.legend(['trained signal', 'new signals'], loc='upper right')
-	plt.ylabel('efficiency')
+	plt.ylabel('density')
+	plt.xlabel('output score')
 	plt.savefig('{}/score.pdf'.format(outputDir))

@@ -43,8 +43,8 @@ if args.s2:
 ## note: no scaling is applied here
 lib_plotting.variable_plotting(df_S, df_B, noname=False, variables=args.config, outputFile='plots/inputVar_noscale.pdf')
 
-sWeight = 25.5/73010
-bWeight = 456.9/946892
+sWeight = 10. 
+bWeight = 1.
 X_train = np.concatenate((pd.DataFrame(df_B), pd.DataFrame(df_S)))
 labels = np.concatenate((np.zeros(len(df_B), dtype=int), np.ones(len(df_S), dtype=int)))
 weight = np.concatenate((np.ones(len(df_B))*bWeight, np.ones(len(df_S))*sWeight))
@@ -58,6 +58,9 @@ if args.saveScale:
 else:
 	scaler = load(open('VariableScaler.pkl', 'rb'))
 X_train = scaler.transform(X_train)
+if args.s2:
+	lib_plotting.variable_plotting(pd.DataFrame(scaler.transform(df_S)), pd.DataFrame(scaler.transform(df_B)), pd.DataFrame(scaler.transform(df_S2)), noname=True, variables=args.config, outputFile='plots/inputCompare_scaled.pdf')
+'''
 lib_plotting.variable_plotting(pd.DataFrame(scaler.transform(df_S)), pd.DataFrame(scaler.transform(df_B)), noname=True, variables=args.config, outputFile='plots/inputVar_scaled.pdf')
 
 rng_state = np.random.get_state()
@@ -74,3 +77,4 @@ outputfile.create_dataset('X_train', data=X_train, compression='gzip')
 outputfile.create_dataset('labels',  data=labels,  compression='gzip')
 outputfile.create_dataset('weight', data=weight, compression='gzip')
 outputfile.close()
+'''
