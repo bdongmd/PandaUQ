@@ -1,5 +1,5 @@
 from json import dump, load
-from numpy.core.fromnumeric import compress
+from numpy.core.fromnumeric import compress, var
 import uproot3 as up
 import numpy as np
 import h5py
@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from pickle import dump, load
 
-#from var_mapping import mapping
+from var_mapping import mapping
 import sys
 
 from uproot3.source.compressed import Compression
@@ -27,16 +27,16 @@ parser.add_argument('-c', '--config', type=str)
 parser.add_argument('-o', '--outputfile', type=str)
 args = parser.parse_args()
 
-signal = up.open(args.sigfile)['miniTree']
-bkg = up.open(args.bkgfile)['miniTree']
+signal = up.open(args.sigfile)['b8_tree']
+bkg = up.open(args.bkgfile)['acc_tree']
 
-#var_list = list(mapping.keys())
+var_list = list(mapping.keys())
 
-df_S = signal.pandas.df()
-df_B = bkg.pandas.df()
+df_S = signal.pandas.df(var_list)
+df_B = bkg.pandas.df(var_list)
 if args.s2:
-	sig2 = up.open(args.s2)['miniTree']
-	df_S2 = sig2.pandas.df()
+	sig2 = up.open(args.s2)['acc_tree']
+	df_S2 = sig2.pandas.df(var_list)
 	lib_plotting.variable_plotting(df_S, df_B, sig2=df_S2, noname=False, variables=args.config, outputFile='plots/inputCompare.pdf')
 
 ######## plotting input variables #########
