@@ -134,7 +134,7 @@ def variable_plotting(signal, bkg, sig2=None, noname=False, variables="S2Only_in
 
 	varcounter = -1
 
-	fig, ax = plt.subplots(3,4, figsize=(16, 12))
+	fig, ax = plt.subplots(5,5, figsize=(16, 12))
 	for i, axobjlist in enumerate(ax):
 		for j, axobj in enumerate(axobjlist):
 			varcounter += 1
