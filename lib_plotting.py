@@ -1,13 +1,23 @@
+from argparse import ArgumentDefaultsHelpFormatter
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
+from typing import Optional
+from typing import Any
 import json
-import pandas as pd
 import sys
+from numpy.lib.function_base import _angle_dispatcher
 from tqdm import tqdm 
 
-def plotOutputScore(score, labels, output_dir='output'):
-	''' Plot output scores of the NN modeli, and purity stuff '''
+def plotOutputScore(score : list, labels : list, output_dir : str ='output') -> None:
+	''' Plot output scores of the NN modeli, and purity stuff 
+	Args:
+	    score (list): Out socer of the sodmid output
+	    labels (list): Labeels for each corresponding objects
+	    output_dr (string): Path of the output directory
+	Returns:
+	    pdf with scores and significance plotting
+	'''
 	outputScore = np.array(score)
 	labels = np.array(labels)
 	scanvalue = np.linspace(0., 1.0, num=100)
@@ -22,8 +32,8 @@ def plotOutputScore(score, labels, output_dir='output'):
 	#sWeight = 1.95/(73010*0.7)
 	#bWeight = 456.9/(946892*0.7)
 	#### For 1 hit:
-	sWeight = 2.7889/(52004)
-	bWeight = 3554.7073/(552226-52004)
+	sWeight = 1
+	bWeight = 1
 
 	for i in tqdm(range(len(scanvalue)), desc="========== Caluting ROC curve..."):
 		signal_tagged = signal[signal_score>scanvalue[i]]
@@ -98,7 +108,7 @@ def plotOutputScore(score, labels, output_dir='output'):
 
 	pdf.close()
 
-def plotAccLoss(trainInput, testInput, putVar, output_dir='plots'):
+def plotAccLoss(trainInput : list, testInput : list, putVar : str, output_dir : str ='plots') -> None:
 	'''comparison between train and testing loss and accuracy'''
 
 	epochs = np.arange(1, len(trainInput) + 1)
@@ -124,8 +134,9 @@ def plotAccLoss(trainInput, testInput, putVar, output_dir='plots'):
 	plt.xlabel('epoch')
 	plt.savefig('{}/{}_compare.pdf'.format(output_dir, putVar))
 
-def variable_plotting(signal, bkg, sig2=None, noname=False, variables="S2Only_input_var.json", outputFile="output/inputVar.pdf"):
-	'''used to plot input distributions between signal and background'''
+def variable_plotting(signal : list, bkg : list, sig2: Optional[str] = None, noname : Any = True, variables: str = "S2Only_input_var.json", outputFile: str = "output/inputVar.pdf") -> None:
+	"""Used to plot input distributions between signal and background
+	Args"""
 
 	nbins = 50
 	with open('{}'.format(variables)) as vardict:
@@ -180,11 +191,14 @@ def variable_plotting(signal, bkg, sig2=None, noname=False, variables="S2Only_in
 	plt.savefig(outputFile, transparent=True)
 
 
-def compare2Sig(sig1_score, sig2_score, outputDir):
+def compare2Sig(sig1_score : str, sig2_score : str, outputDir : str) -> None:
 	'''Compare the efficiency and other performance between two signals.
-	sig1_score: sigmoid output score for signal 1
-	sig2_score: sigmoid output score for signal 2
-	outputfile: name of output file'''
+	Args:
+	    sig1_score: sigmoid output score for signal 1
+	    sig2_score: sigmoid output score for signal 2
+	    outputfile: name of output file
+	Returns:
+	    pdf with output score and efficiency comparison between two sample'''
 
 	scanvalue = np.linspace(0., 1.0, num=100)
 	sigeff_1 = []
@@ -214,3 +228,42 @@ def compare2Sig(sig1_score, sig2_score, outputDir):
 	plt.ylabel('density')
 	plt.xlabel('output score')
 	plt.savefig('{}/score.pdf'.format(outputDir))
+
+
+def plot_style(x_label: str, y_label: str) -> None:
+	"""General function to apply style formats to all plots
+
+	Args:
+	    x_label (str): x-axis label
+	    y_label (str): y-axis label
+	"""
+	plt.xlabel(x_label)
+	plt.ylabel(y_label)
+	_, labels = plt.gca().get_legend_handles_labels()
+	if len(labels) > 0:
+		plt.legend(frameon=False)
+
+def plot_DUQ(var1: np.array, x_label : str, labels : np.array = None, bins1: list = None, var2: str = None, bins2: list = None, y_label: str = "density", title: Optional[str] = None, outputDir: str = "output", plot2hist: Any = True) -> None:
+	fig = plt.figure()
+	if var2 is not None:
+		h = plt.hist2d(var1, var2, bins=[bins1, bins2], cmap="Blues")
+		plt.colorbar(h[3])
+	else:
+		if plot2hist:
+			sig = var1[labels==1]
+			bkg = var1[labels==0]
+			plt.hist(sig, bins=100, range=[0,1], label="signal" , density=True, alpha = 0.7)
+			plt.hist(bkg, bins=100, range=[0,1], label="background", density=True, alpha=0.7)
+		else:
+			plt.hist(var1, bins=100, range=[0,1], density=True, alpha=0.7)
+	plot_style(x_label, y_label)
+	plt.savefig('{}/{}.png'.format(outputDir, title))
+
+def SanityCheck(var: np.array, CI: list, title: str, x_label: str = "output score", y_label: str = "density", outputDir: str = "output") -> None:
+	fig = plt.figure()
+	plt.hist(var, bins=100, range=[0,1], density=True, alpha=0.7)
+	plt.axvline(x=np.median(var), label="median", color='blue')
+	plt.axvline(x=CI[0], color='green')
+	plt.axvline(x=CI[1], color='green', label='68% CI')
+	plot_style(x_label, y_label)
+	plt.savefig('{}/{}.png'.format(outputDir, title))
