@@ -1,4 +1,3 @@
-from argparse import ArgumentDefaultsHelpFormatter
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
@@ -6,7 +5,6 @@ from typing import Optional
 from typing import Any
 import json
 import sys
-from numpy.lib.function_base import _angle_dispatcher
 from tqdm import tqdm 
 
 def plotOutputScore(score : list, labels : list, output_dir : str ='output') -> None:
@@ -243,27 +241,80 @@ def plot_style(x_label: str, y_label: str) -> None:
 	if len(labels) > 0:
 		plt.legend(frameon=False)
 
-def plot_DUQ(var1: np.array, x_label : str, labels : np.array = None, bins1: list = None, var2: str = None, bins2: list = None, y_label: str = "density", title: Optional[str] = None, outputDir: str = "output", plot2hist: Any = True) -> None:
-	fig = plt.figure()
+def plot_DUQ(var1: np.array, x_label : str, labels : np.array = None, bins1: list = None, var2: str = None, bins2: list = None, y_label: str = "density", title: Optional[str] = None, outputDir: str = "output") -> None:
+	sig = var1[labels==1]
+	bkg = var1[labels==0]
+	pdf = matplotlib.backends.backend_pdf.PdfPages('{}/{}.pdf'.format(outputDir, title))
 	if var2 is not None:
-		h = plt.hist2d(var1, var2, bins=[bins1, bins2], cmap="Blues")
-		plt.colorbar(h[3])
-	else:
-		if plot2hist:
-			sig = var1[labels==1]
-			bkg = var1[labels==0]
-			plt.hist(sig, bins=100, range=[0,1], label="signal" , density=True, alpha = 0.7)
-			plt.hist(bkg, bins=100, range=[0,1], label="background", density=True, alpha=0.7)
-		else:
-			plt.hist(var1, bins=100, range=[0,1], density=True, alpha=0.7)
-	plot_style(x_label, y_label)
-	plt.savefig('{}/{}.png'.format(outputDir, title))
+		sig2 = var2[labels==1]
+		bkg2 = var2[labels==0]
+		fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+		plt.hist2d(var1, var2, bins=[bins1, bins2], cmap="Blues")
+		plt.colorbar()
+		ax.set_title('total events')
+		plot_style(x_label, y_label)
+		pdf.savefig()
+		fig.clear()
+		plt.close(fig)
 
-def SanityCheck(var: np.array, CI: list, title: str, x_label: str = "output score", y_label: str = "density", outputDir: str = "output") -> None:
+		fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+		plt.hist2d(sig, sig2, bins=[bins1, bins2], cmap="Blues")
+		plt.colorbar()
+		ax.set_title('signal')
+		plot_style(x_label, y_label)
+		pdf.savefig()
+		fig.clear()
+		plt.close(fig)
+
+		fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+		plt.hist2d(bkg, bkg2, bins=[bins1, bins2], cmap="Blues")
+		plt.colorbar()
+		ax.set_title('background')
+		plot_style(x_label, y_label)
+		pdf.savefig()
+		fig.clear()
+		plt.close(fig)
+
+		pdf.close()
+
+	else:
+		fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+		ax.hist(var1, bins=100, range=[0,1], density=True, alpha=0.7)
+		plot_style(x_label, y_label)
+		ax.set_title('total events')
+		pdf.savefig()
+		fig.clear()
+		plt.close(fig)
+		
+		fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+		ax.hist(sig, bins=100, range=[0,1], density=True, alpha=0.7)
+		plot_style(x_label, y_label)
+		ax.set_title('signal')
+		pdf.savefig()
+		fig.clear()
+		plt.close(fig)
+		
+		fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+		ax.hist(bkg, bins=100, range=[0,1], density=True, alpha=0.7)
+		plot_style(x_label, y_label)
+		ax.set_title('background')
+		pdf.savefig()
+		fig.clear()
+		plt.close(fig)
+
+		pdf.close()
+
+
+def SanityCheck(var: np.array, label: int, CI: list, title: str, x_label: str = "output score", y_label: str = "density", outputDir: str = "output") -> None:
 	fig = plt.figure()
+	if label==1:
+		text = "signal"
+	else:
+		text = "background"
 	plt.hist(var, bins=100, range=[0,1], density=True, alpha=0.7)
-	plt.axvline(x=np.median(var), label="median", color='blue')
-	plt.axvline(x=CI[0], color='green')
-	plt.axvline(x=CI[1], color='green', label='68% CI')
+	plt.axvline(x=np.median(var), linestyle='-', label="median", color='blue')
+	plt.axvline(x=CI[0], linestyle='-', color='green')
+	plt.axvline(x=CI[1], linestyle='-', color='green', label='68% CI')
+	plt.annotate(text, xy=(0.5, 0.9), xycoords='axes fraction')
 	plot_style(x_label, y_label)
 	plt.savefig('{}/{}.png'.format(outputDir, title))

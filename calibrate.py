@@ -1,19 +1,13 @@
 import numpy as np
 import h5py
-from numpy.lib.npyio import save
 import model
 import lib_plotting
 from tqdm import tqdm
 import utils
 
-import tensorflow as tf
-from itertools import compress
 from scipy import stats
 
-import os
-import sys
 import timeit
-from datetime import datetime
 import argparse
 
 parser = argparse.ArgumentParser(description='Options for doing the evaluations.')
@@ -30,7 +24,7 @@ cut = 0.9
 saveDropoutScore = False # if True save output score with Dropout enabled, else no.
 
 #### model parameters
-InputShape = 23
+InputShape = 19
 h_layers = [60, 30, 15, 8]
 drops = [0.2, 0.2, 0.2, 0.2]
 dropout=True
@@ -55,7 +49,6 @@ if compareTwoSig:
 	sig2_test = sig2_test[sig2_label==1]
 else:
 	halfEvents = int(len(f['X_train'])*0.7)
-	halfEvents = 156380
 	X_test = f['X_train'][halfEvents:]
 	labels = f['labels'][halfEvents:]
 
@@ -79,7 +72,7 @@ else:
 			sanityCheck = True
 		else:
 			sanityCheck = False
-		tmpAcc, tmpSig, tmpUncer, tmpMedian, tmpScore = utils.evaluation(model=test_model_Dropout, input_data=input_data, n_predictions=n_predictions, cut=cut, title='event_{}'.format(str(j)), sanityCheck=sanityCheck)
+		tmpAcc, tmpSig, tmpUncer, tmpMedian, tmpScore = utils.evaluation(model=test_model_Dropout, input_data=input_data, n_predictions=n_predictions, cut=cut, label=labels[j], title='event_{}'.format(str(j)), sanityCheck=sanityCheck)
 
 		objAcc.append(tmpAcc)
 		median.append(tmpMedian)
@@ -106,5 +99,5 @@ else:
 	lib_plotting.plot_DUQ(labels=np.array(labels), var1=np.array(uncer), x_label="uncertainty", title="uncertainty")
 	lib_plotting.plot_DUQ(labels=np.array(labels), var1=np.array(median), x_label="median", title="median")
 	acc_bins = np.linspace(0,1,100).tolist()
-	lib_plotting.plot_DUQ(var1=np.array(nodrop).flatten(), var2=np.array(objAcc), x_label="output score", y_label="accuracy", bins1=acc_bins, bins2=acc_bins, title="acc_vs_score")
-	lib_plotting.plot_DUQ(var1=np.array(probability).flatten(), var2=np.array(objAcc), x_label="DUQ predicted score", y_label="accuracy", bins1=acc_bins, bins2=acc_bins, title="acc_vs_duq")
+	lib_plotting.plot_DUQ(var1=np.array(nodrop).flatten(), var2=np.array(objAcc), x_label="output score", y_label="accuracy", bins1=acc_bins, bins2=acc_bins, title="acc_vs_score", labels=np.array(labels))
+	lib_plotting.plot_DUQ(var1=np.array(probability).flatten(), var2=np.array(objAcc), x_label="DUQ predicted score", y_label="accuracy", bins1=acc_bins, bins2=acc_bins, title="acc_vs_duq",labels=np.array(labels))

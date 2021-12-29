@@ -23,7 +23,7 @@ def get_max(tree, branch, index):
 	for i in range(tree.numentries):
 		max_value.append(var[i][ith[i]])
 	return max_value
-vector_varible = ["qS2Tenth", "qS2FWHM1", "qS2FWHM3", "wS2CDF", "wS2CDF5", "wS2CDF10", "wS2CDF25", "wS2CDF50", "wS2CDF75", "wS2CDF90", "wS2CDF95", "nPMTS2", "nPeakS2", "qS2maxHitCharge", "qS2maxChannelCharge", "qS2hitStdev", "qS2channelStdev"]
+vector_varible = ["qS2Tenth", "qS2FWHM1", "qS2FWHM3", "wS2CDF", "wS2CDF5", "wS2CDF50", "wS2CDF90", "nPMTS2", "nPeakS2", "qS2maxHitCharge", "qS2maxChannelCharge", "qS2hitStdev", "qS2channelStdev"]
 
 parser = argparse.ArgumentParser(description='Add input and output files.')
 parser.add_argument('-s', '--sigfile', type=str,

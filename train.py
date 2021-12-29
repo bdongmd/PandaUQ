@@ -19,13 +19,13 @@ args = parser.parse_args()
 
 #####
 # Parameter setting here
-InputShape = 10
-h_layers = [40, 25, 8]
-drops = [0.3, 0.3, 0.3]
+InputShape = 19
+h_layers = [60, 30, 15, 8]
+drops = [0.2, 0.2, 0.2, 0.2]
 dropout=True
 lr = 0.0001
-batch_size = 524 
-epochs = 40
+batch_size = 128 
+epochs = 120
 
 doPlotting = True
 
@@ -42,7 +42,7 @@ Y_test = trainfile['labels'][halfEvents:]
 test_weight = trainfile['weight'][halfEvents:]
 
 ##### Training model parameter setting and loading
-TrainModel = model.DLModel(InputShape=InputShape, h_layers=h_layers, lr=lr, drops=drops, dropout=dropout)
+TrainModel = model.DLModel(InputShape=InputShape, h_layers=h_layers, lr=lr, drops=drops, dropout=dropout, met="prec")
 TrainModel.summary()
 
 ##### Hello!! Adding useful early stop...
@@ -52,16 +52,16 @@ history = TrainModel.fit(X_train, Y_train,
 			batch_size = batch_size,
 			epochs = epochs,
 			validation_data = (X_test, Y_test, test_weight),
-			callbacks = callbacks,
+			#callbacks = callbacks,
 			verbose = 1)
 TrainModel.save('{}/training_e{}.h5'.format(args.outputDir,epochs))
 
 
 train_loss = history.history['loss']
-train_acc = history.history['accuracy']
+#train_acc = history.history['accuracy']
 val_loss = history.history['val_loss']
-val_acc = history.history['val_accuracy']
+#val_acc = history.history['val_accuracy']
 
 if doPlotting:
 	lib_plotting.plotAccLoss(train_loss, val_loss, putVar='Loss', output_dir=args.outputDir)
-	lib_plotting.plotAccLoss(train_acc, val_acc, putVar='Acc', output_dir=args.outputDir)
+	#lib_plotting.plotAccLoss(train_acc, val_acc, putVar='Acc', output_dir=args.outputDir)
