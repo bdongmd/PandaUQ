@@ -318,3 +318,107 @@ def SanityCheck(var: np.array, label: int, CI: list, title: str, x_label: str = 
 	plt.annotate(text, xy=(0.5, 0.9), xycoords='axes fraction')
 	plot_style(x_label, y_label)
 	plt.savefig('{}/{}.png'.format(outputDir, title))
+
+def plot_diff(labels: np.array, duq_score: np.array, out_score: np.array, uncer: np.array, cut: float = 0.9, title: Optional[str] = None, outputDir: str = "output") -> None:
+	""" Plot difference between correctly and mis-classified signal and backgroun. Check the relationship between the scores and the uncertainties
+	Args:
+	    label: labels for each event
+	    duq_score: DUQ calculated score for each event
+	    out_score: Sigmoid/Softmax output score for each event
+	    uncer: DUQ calculated uncertainty for each event
+	    cut: selected cut to distinguish signal and background
+	    title: output pdf name
+	    outputDire: output directory 
+	"""
+
+	sig_uncer = uncer[labels==1]
+	sig_score = out_score[labels==1]
+	sig_duq_score = duq_score[labels==1]
+	bkg_uncer = uncer[labels==0]
+	bkg_score = out_score[labels==0]
+	bkg_duq_score = duq_score[labels==0]
+	pdf = matplotlib.backends.backend_pdf.PdfPages('{}/{}.pdf'.format(outputDir, title))
+
+	## [uncertainty] distribution for the correctly tagged signal and background
+	fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+	plt.hist(sig_uncer[sig_score>cut], bins=100, range=[0,1], label="correctly classified signal", alpha=0.7, density=True)
+	plt.hist(bkg_uncer[bkg_score<cut], bins=100, range=[0,1], label="correctly classified background", alpha=0.7, density=True)
+	plt.yscale('log')
+	plot_style("uncertainty", "density")
+	pdf.savefig()
+	fig.clear()
+	plt.close(fig)
+
+	## [uncertainty] distribution for the wrongly tagged signal and background
+	fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+	plt.hist(sig_uncer[sig_score<cut], bins=100, range=[0,1], label="misclassified signal", alpha=0.7, density=True)
+	plt.hist(bkg_uncer[bkg_score>cut], bins=100, range=[0,1], label="misclassified background", alpha=0.7, density=True)
+	plt.yscale('log')
+	plot_style("uncertainty", "density")
+	pdf.savefig()
+	fig.clear()
+	plt.close(fig)
+
+	## duq score distribution for the wrongly tagged signal and background
+	fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+	plt.hist(sig_duq_score[sig_score<cut], bins=100, range=[0,1], label="misclassified signal", alpha=0.7, density=True)
+	plt.hist(bkg_duq_score[bkg_score>cut], bins=100, range=[0,1], label="misclassified background", alpha=0.7, density=True)
+	plt.yscale('log')
+	plot_style("DUQ predicted score", "density")
+	pdf.savefig()
+	fig.clear()
+	plt.close(fig)
+
+	## duq score versus uncertainty for the wrongly tagged signal
+	fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+	score_bin = np.linspace(0,1,100).tolist()
+	uncer_bin = np.linspace(0,1,100).tolist()
+	plt.hist2d(sig_duq_score[sig_score<cut], sig_uncer[sig_score<cut], bins=[score_bin, uncer_bin], cmap="Blues")
+	plt.colorbar()
+	ax.set_title('misclassified signal')
+	plot_style("DUQ predicted score", "uncertainty")
+	pdf.savefig()
+	fig.clear()
+	plt.close(fig)
+
+	## output score versus uncertainty for the wrongly tagged signal
+	fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+	plt.hist2d(sig_score[sig_score<cut], sig_uncer[sig_score<cut], bins=[score_bin, uncer_bin], cmap="Blues")
+	plt.colorbar()
+	ax.set_title('misclassified signal')
+	plot_style("output score", "uncertainty")
+	pdf.savefig()
+	fig.clear()
+	plt.close(fig)
+
+	## duq score versus uncertainty for the wrongly tagged background 
+	fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+	plt.hist2d(bkg_duq_score[bkg_score>cut], bkg_uncer[bkg_score>cut], bins=[score_bin, uncer_bin], cmap="Blues")
+	plt.colorbar()
+	ax.set_title('misclassified background')
+	plot_style("DUQ predicted score", "uncertainty")
+	pdf.savefig()
+	fig.clear()
+	plt.close(fig)
+
+	## output score versus uncertainty for the wrongly tagged background
+	fig, ax = plt.subplots(figsize=(10,10), ncols=1, nrows=1)
+	plt.hist2d(bkg_score[bkg_score>cut], bkg_uncer[bkg_score>cut], bins=[score_bin, uncer_bin], cmap="Blues")
+	plt.colorbar()
+	ax.set_title('misclassified background')
+	plot_style("output score", "uncertainty")
+	pdf.savefig()
+	fig.clear()
+	plt.close(fig)
+
+	pdf.close()
+
+
+def plot_large_uncer(scores: np.array, median: float, uncer: float, outFile: str) -> None:
+	fig = plt.figure()
+	plt.hist(scores, bins=100, range=(0,1), alpha=0.7, density=True)
+	plt.yscale('log')
+	plot_style("output scores", "density")
+	plt.annotate('median = {:.02f}'.format(median), xy=(0.7, 0.8), xycoords='axes fraction')
+	plt.annotate('uncertainty = {:.02f}'.format(uncer), xy=(0.7, 0.7), xycoords='axes fraction')
+	plt.savefig('{}'.format(outFile))

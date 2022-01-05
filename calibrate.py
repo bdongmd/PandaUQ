@@ -1,3 +1,5 @@
+from re import U
+from matplotlib.pyplot import title
 import numpy as np
 import h5py
 import model
@@ -17,7 +19,7 @@ parser.add_argument('-o', '--output', type=str, default='output')
 parser.add_argument('-m', '--model', type=str, default='output/training_e40.h5')
 args = parser.parse_args()
 
-n_predictions = 10000 # number of predictions, got from stability study
+n_predictions = 5000 # number of predictions, got from stability study
 performanceCheck = False # check simple performance without Droput enabled if True, else not.
 compareTwoSig = True and args.s2 # if comapre performance between two signals
 cut = 0.9
@@ -62,6 +64,7 @@ elif performanceCheck:
 else:
 	objAcc = []
 	median = []
+	CI = []
 	uncer = []
 	significance = []
 	score_drop = []
@@ -72,10 +75,11 @@ else:
 			sanityCheck = True
 		else:
 			sanityCheck = False
-		tmpAcc, tmpSig, tmpUncer, tmpMedian, tmpScore = utils.evaluation(model=test_model_Dropout, input_data=input_data, n_predictions=n_predictions, cut=cut, label=labels[j], title='event_{}'.format(str(j)), sanityCheck=sanityCheck)
+		tmpAcc, tmpSig, tmpCI, tmpUncer, tmpMedian, tmpScore = utils.evaluation(model=test_model_Dropout, input_data=input_data, n_predictions=n_predictions, cut=cut, label=labels[j], title='event_{}'.format(str(j)), sanityCheck=sanityCheck)
 
 		objAcc.append(tmpAcc)
 		median.append(tmpMedian)
+		CI.append(tmpCI)
 		significance.append(tmpSig)
 		uncer.append(tmpUncer)
 		if saveDropoutScore:
@@ -84,11 +88,12 @@ else:
 	final = timeit.default_timer()
 	print("===== Time used to evaluate ojects: {}s.".format(final-init))
 
-	fout = h5py.File('{}/DUQ_out.h5'.format(args.output), 'w')
+	fout = h5py.File('{}/DUQ_test.h5'.format(args.output), 'w')
 	fout.create_dataset('probability', data=np.array(probability))
-	fout.create_dataset('acc', data=np.array(objAcc))
+	fout.create_dataset('acc', data=np.array(objAcc)) ## this is not accuracy, but tagged per cent
 	fout.create_dataset('median', data=np.array(median))
 	fout.create_dataset('uncertainty', data=np.array(uncer))
+	fout.create_dataset('CI', data=np.array(CI))
 	fout.create_dataset('labels', data=np.array(labels))
 	fout.create_dataset('score_notDrop', data=np.array(nodrop))
 	if saveDropoutScore:
@@ -101,3 +106,4 @@ else:
 	acc_bins = np.linspace(0,1,100).tolist()
 	lib_plotting.plot_DUQ(var1=np.array(nodrop).flatten(), var2=np.array(objAcc), x_label="output score", y_label="accuracy", bins1=acc_bins, bins2=acc_bins, title="acc_vs_score", labels=np.array(labels))
 	lib_plotting.plot_DUQ(var1=np.array(probability).flatten(), var2=np.array(objAcc), x_label="DUQ predicted score", y_label="accuracy", bins1=acc_bins, bins2=acc_bins, title="acc_vs_duq",labels=np.array(labels))
+	lib_plotting.plot_diff(labels=np.array(labels), duq_score=np.array(probability), out_score=np.array(nodrop), uncer=np.array(uncer), cut = cut, title="testing_uncer")
