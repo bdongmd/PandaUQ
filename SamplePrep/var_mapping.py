@@ -13,12 +13,10 @@ mapping = {
 	"yS2Tcor_max" : "yS2Tcor_max",
 	"xS2Bcor_max" : "xS2Bcor_max",
 	"yS2Bcor_max" : "yS2Bcor_max",
-	"nPMTSparking" : "nPMTSparking",
 	"qElse" : "qElse",
 	"qNearS2max" : "qNearS2max",
 	"nS2Total" : "nS2Total",
 	"xS2max_TM" : "xS2max_TM",
 	"yS2max_TM" : "yS2max_TM",
-	"lS2max_TM" : "lS2max_TM",
 	"rms_TM" : "rms_TM"
 }
